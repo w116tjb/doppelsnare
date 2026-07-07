@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_universal.txt — Universal Starter Keywords
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Any / General-purpose
+# Usage      : python doppelsnare.py yourdomain.com --keywords keywords/keywords_universal.txt
+#
+# These are high-frequency words attackers combine with ANY brand name to
+# build convincing lookalike domains.  Use this as a baseline and layer an
+# industry-specific keyword file on top for deeper coverage.
+#
+# Tip: you can concatenate files to combine lists:
+#   cat keywords/keywords_universal.txt keywords/keywords_financial.txt > combined.txt
+#   python doppelsnare.py yourdomain.com --keywords combined.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Account & Authentication ─────────────────────────────────────────────────
+login
+signin
+signup
+register
+account
+accounts
+myaccount
+auth
+sso
+verify
+verification
+confirm
+confirmation
+reset
+password
+2fa
+mfa
+
+# ── Portal & Access ──────────────────────────────────────────────────────────
+portal
+dashboard
+console
+admin
+panel
+access
+connect
+gateway
+hub
+center
+central
+
+# ── Security & Trust ─────────────────────────────────────────────────────────
+secure
+security
+safe
+protect
+encrypted
+trusted
+official
+verified
+alert
+alerts
+warning
+notice
+urgent
+
+# ── Payments & Billing ───────────────────────────────────────────────────────
+pay
+payment
+payments
+billing
+invoice
+invoices
+wire
+transfer
+checkout
+refund
+
+# ── Corporate Structure ──────────────────────────────────────────────────────
+corp
+inc
+llc
+group
+global
+holdings
+partners
+enterprise
+services
+solutions
+systems
+
+# ── Digital & Web ────────────────────────────────────────────────────────────
+app
+apps
+web
+online
+digital
+cloud
+mail
+email
+mobile
+api
+go
+my
+now
+plus
+pro
+direct
+live

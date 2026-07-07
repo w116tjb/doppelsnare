@@ -1,0 +1,99 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_energy.txt — Energy & Utilities
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Electric, Gas, Water, Solar, Wind, Oil & Gas, Nuclear
+# Usage      : python doppelsnare.py yourutility.com --keywords keywords/keywords_energy.txt
+#
+# Utility impersonation exploits billing urgency — shut-off threats,
+# overpayment refunds, and smart meter access are common lures.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Billing & Payments ───────────────────────────────────────────────────────
+billing
+mybill
+paybill
+payment
+paynow
+autopay
+budget
+budgetbilling
+statement
+balance
+pastdue
+shutoff
+disconnect
+reconnect
+deposit
+
+# ── Account & Meter ──────────────────────────────────────────────────────────
+myaccount
+account
+meter
+smartmeter
+reading
+usage
+consumption
+kwh
+therms
+rate
+rates
+tariff
+
+# ── Services ─────────────────────────────────────────────────────────────────
+service
+services
+outage
+outages
+reportoutage
+restoration
+emergency
+storm
+maintenance
+repair
+connect
+newservice
+startservice
+stopservice
+transfer
+
+# ── Programs & Rebates ───────────────────────────────────────────────────────
+rebate
+rebates
+incentive
+efficiency
+energyefficiency
+solar
+ev
+charger
+audit
+weatherization
+assistance
+liheap
+lowincome
+savings
+
+# ── Grid & Operations ───────────────────────────────────────────────────────
+grid
+power
+electric
+gas
+water
+wind
+renewable
+generation
+transmission
+distribution
+pipeline
+scada
+ot
+
+# ── Regulatory ───────────────────────────────────────────────────────────────
+puc
+psc
+nerc
+ferc
+compliance
+regulatory
+safety
+reliability

@@ -1,0 +1,107 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_food.txt — Food & Beverage
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Restaurants, QSR, CPG Food, Beverage, Food Delivery, Grocery
+# Usage      : python doppelsnare.py yourbrand.com --keywords keywords/keywords_food.txt
+#
+# Food & beverage phishing targets online ordering, loyalty/rewards programs,
+# delivery tracking, franchise portals, and gift card activation — attackers
+# exploit high transaction volume and consumer brand familiarity.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Ordering & Delivery ──────────────────────────────────────────────────────
+order
+orders
+myorder
+orderonline
+menu
+cart
+checkout
+delivery
+pickup
+curbside
+drivethru
+catering
+reserve
+reservation
+table
+waitlist
+
+# ── Loyalty & Rewards ────────────────────────────────────────────────────────
+rewards
+loyalty
+points
+stars
+member
+membership
+club
+vip
+birthday
+freebie
+offer
+offers
+promo
+coupon
+deal
+deals
+
+# ── Gift Cards & Payments ────────────────────────────────────────────────────
+giftcard
+giftcards
+egift
+balance
+reload
+pay
+payment
+wallet
+credit
+refund
+receipt
+tip
+
+# ── Franchise & Operations ───────────────────────────────────────────────────
+franchise
+franchisee
+owner
+operator
+store
+stores
+location
+locations
+hiring
+apply
+careers
+jobs
+training
+manager
+
+# ── Supply & Vendor ──────────────────────────────────────────────────────────
+supplier
+vendor
+distributor
+procurement
+invoice
+billing
+supply
+ingredients
+produce
+quality
+foodsafety
+recall
+allergen
+
+# ── Brand & Marketing ────────────────────────────────────────────────────────
+app
+mobileapp
+nutrition
+calories
+dietary
+seasonal
+limited
+new
+launch
+sweepstakes
+contest
+survey
+feedback

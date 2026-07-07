@@ -1,0 +1,84 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_financial.txt — Financial Services & Banking
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Banks, Credit Unions, Wealth Management, Investment Firms
+# Usage      : python doppelsnare.py yourbank.com --keywords keywords/keywords_financial.txt
+#
+# Attackers targeting financial institutions commonly build domains around
+# online banking portals, wire transfer workflows, ACH/payment terms, and
+# regulatory or compliance language to exploit customer trust.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Online Banking & Portals ─────────────────────────────────────────────────
+banking
+onlinebanking
+ebanking
+mobilebanking
+netbanking
+ibanking
+personalbanking
+businessbanking
+commercialbanking
+privatebanking
+
+# ── Accounts & Products ──────────────────────────────────────────────────────
+checking
+savings
+deposit
+cd
+moneymarket
+ira
+brokerage
+wealth
+investments
+portfolio
+treasury
+
+# ── Transactions & Payments ──────────────────────────────────────────────────
+wire
+transfer
+ach
+zelle
+billpay
+autopay
+directdeposit
+funds
+remittance
+swift
+routing
+
+# ── Cards & Lending ──────────────────────────────────────────────────────────
+creditcard
+debitcard
+card
+cardservices
+loan
+loans
+mortgage
+heloc
+creditline
+preapproval
+
+# ── Security & Compliance ────────────────────────────────────────────────────
+fraud
+fraudalert
+suspicious
+dispute
+chargeback
+kyc
+aml
+compliance
+regulatory
+fdic
+occ
+
+# ── Customer Service ─────────────────────────────────────────────────────────
+support
+help
+customerservice
+client
+advisor
+branch
+atm
+statements

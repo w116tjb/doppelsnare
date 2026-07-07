@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# known_good.txt — Domains to exclude from DoppelSnare results
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# One domain per line.  Blank lines and lines starting with '#' are ignored.
+#
+# Use this to suppress false positives from domains you own, legitimate
+# partners, vendors, or subsidiaries that would otherwise trigger as
+# lookalikes of your primary brand domain.
+#
+# Usage:
+#   python doppelsnare.py example.com --allowlist known_good.txt
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Your own domains / properties ────────────────────────────────────────────
+# example.com
+# example.net
+# example.org
+# example.io
+# myexample.com
+
+# ── Legitimate subsidiaries / acquired brands ────────────────────────────────
+# exampleservices.com
+# examplegroup.com
+
+# ── Vendor / partner domains that trigger as lookalikes ──────────────────────
+# (Add domains here as false positives are identified during scans)
+
+# ── Industry peers or common false positives ─────────────────────────────────
+# (Domains that share keywords but are unrelated to your brand)

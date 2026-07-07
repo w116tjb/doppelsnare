@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_technology.txt — Technology & SaaS
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : SaaS, Cloud, DevTools, IT Services, MSPs, Cybersecurity Vendors
+# Usage      : python doppelsnare.py yoursaas.com --keywords keywords/keywords_technology.txt
+#
+# Tech brand impersonation targets developer portals, API key management,
+# admin consoles, SSO flows, and subscription/billing pages — attackers
+# exploit the high privilege level of these access points.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Developer & API ──────────────────────────────────────────────────────────
+dev
+developer
+developers
+api
+apis
+sdk
+docs
+documentation
+reference
+sandbox
+playground
+console
+cli
+webhook
+webhooks
+
+# ── Admin & Management ───────────────────────────────────────────────────────
+admin
+administrator
+manage
+management
+dashboard
+panel
+controlpanel
+settings
+config
+configuration
+
+# ── Cloud & Infrastructure ───────────────────────────────────────────────────
+cloud
+hosting
+server
+servers
+compute
+storage
+cdn
+edge
+region
+cluster
+node
+deploy
+deployment
+status
+statuspage
+uptime
+
+# ── Identity & Access ────────────────────────────────────────────────────────
+sso
+saml
+oauth
+auth
+identity
+idp
+directory
+ldap
+scim
+token
+apikey
+credentials
+
+# ── Subscription & Billing ───────────────────────────────────────────────────
+billing
+subscription
+plan
+plans
+pricing
+upgrade
+trial
+freetrial
+enterprise
+pro
+premium
+license
+licenses
+renew
+renewal
+invoice
+
+# ── Support & Community ──────────────────────────────────────────────────────
+support
+help
+helpdesk
+ticket
+tickets
+community
+forum
+feedback
+changelog
+updates
+blog
+learn
+academy
+training

@@ -1,0 +1,11 @@
+# lookalike_domains.py — Python dependencies
+#
+# Install with:
+#   pip install -r requirements.txt
+#
+# Both packages are optional — the script degrades gracefully if absent:
+#   dnspython   → falls back to socket.getaddrinfo() for A records only
+#   python-whois → WHOIS data (registrar, creation date) will be unavailable
+
+dnspython>=2.4.0
+python-whois>=0.9.0

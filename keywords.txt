@@ -1,0 +1,68 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords.txt — Default keyword list for DoppelSnare
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# This is a lightweight starter list.  For deeper coverage, use an
+# industry-specific keyword file from the keywords/ directory:
+#
+#   keywords/keywords_financial.txt       — Banking & Financial Services
+#   keywords/keywords_insurance.txt       — Insurance
+#   keywords/keywords_healthcare.txt      — Healthcare & Hospitals
+#   keywords/keywords_pharma.txt          — Pharmaceutical & Life Sciences
+#   keywords/keywords_technology.txt      — Technology & SaaS
+#   keywords/keywords_ecommerce.txt       — E-Commerce & Retail
+#   keywords/keywords_realestate.txt      — Real Estate & Mortgage
+#   keywords/keywords_legal.txt           — Legal & Law Firms
+#   keywords/keywords_government.txt      — Government & Public Sector
+#   keywords/keywords_education.txt       — Education & Universities
+#   keywords/keywords_energy.txt          — Energy & Utilities
+#   keywords/keywords_manufacturing.txt   — Manufacturing & Industrial
+#   keywords/keywords_telecom.txt         — Telecommunications
+#   keywords/keywords_logistics.txt       — Transportation & Logistics
+#   keywords/keywords_hospitality.txt     — Hospitality & Travel
+#   keywords/keywords_media.txt           — Media & Entertainment
+#   keywords/keywords_crypto.txt          — Cryptocurrency & Fintech
+#   keywords/keywords_aerospace.txt       — Aerospace & Defense
+#   keywords/keywords_food.txt            — Food & Beverage
+#   keywords/keywords_nonprofit.txt       — Nonprofit & NGO
+#   keywords/keywords_universal.txt       — Universal (all industries)
+#
+# Combine lists for maximum coverage:
+#   cat keywords/keywords_universal.txt keywords/keywords_financial.txt > combined.txt
+#   python doppelsnare.py example.com --keywords combined.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Account & Authentication ─────────────────────────────────────────────────
+login
+signin
+account
+verify
+reset
+secure
+auth
+portal
+
+# ── Payments ─────────────────────────────────────────────────────────────────
+pay
+payment
+billing
+invoice
+wire
+transfer
+
+# ── Corporate ────────────────────────────────────────────────────────────────
+corp
+inc
+group
+services
+support
+help
+
+# ── Digital ──────────────────────────────────────────────────────────────────
+app
+web
+online
+cloud
+mail
+mobile
+my

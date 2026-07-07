@@ -1,0 +1,97 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_government.txt — Government & Public Sector
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Federal, State, Local Government, Agencies, Public Utilities
+# Usage      : python doppelsnare.py youragency.gov --keywords keywords/keywords_government.txt
+#
+# Government impersonation is widespread — attackers mimic tax agencies,
+# benefits portals, permit systems, and court notifications.  Citizens
+# trust .gov-adjacent domains and often comply with urgent-sounding requests.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Citizen Services ─────────────────────────────────────────────────────────
+citizen
+citizens
+resident
+residents
+public
+community
+services
+311
+request
+report
+complaint
+
+# ── Tax & Revenue ────────────────────────────────────────────────────────────
+tax
+taxes
+revenue
+refund
+filing
+efile
+assessment
+property
+propertytax
+levy
+lien
+delinquent
+payment
+paytax
+
+# ── Benefits & Social Services ───────────────────────────────────────────────
+benefits
+unemployment
+disability
+snap
+ebt
+welfare
+medicaid
+medicare
+socialsecurity
+pension
+retirement
+
+# ── Permits & Licensing ──────────────────────────────────────────────────────
+permit
+permits
+license
+licensing
+registration
+renewal
+certificate
+inspection
+zoning
+building
+contractor
+
+# ── Courts & Records ────────────────────────────────────────────────────────
+court
+courts
+records
+publicrecords
+foia
+warrant
+summons
+jury
+juryduty
+citation
+fine
+violation
+docket
+
+# ── Identity & Compliance ───────────────────────────────────────────────────
+id
+identity
+realid
+voter
+election
+ballot
+census
+compliance
+audit
+procurement
+bid
+rfp
+contract
+grant
