@@ -34,10 +34,13 @@ Deep-fingerprints the live domains DoppelSnare surfaces:
 
 ### `doppelsnare_gui.py` — Desktop interface
 
-A native graphical front-end over the generation and enrichment engine, for
-analysts who prefer a point-and-click workflow to the command line. It drives
-the exact same `doppelsnare.py` pipeline — no separate logic to keep in sync —
-and streams results into a live table as domains resolve:
+A native graphical front-end over both engines, for analysts who prefer a
+point-and-click workflow to the command line. It drives the exact same
+`doppelsnare.py` and `doppelsnare_recon.py` pipelines — no separate logic to
+keep in sync — across two tabs.
+
+**Detection tab** — generation + DNS/WHOIS enrichment, streaming results into a
+live table as domains resolve:
 
 - **Scan configuration panel** — target domain, keyword list (a dropdown
   auto-populated with all 21 industry libraries plus a file browser), allowlist,
@@ -50,12 +53,37 @@ and streams results into a live table as domains resolve:
   Double-click a row to copy the domain
 - **Change tracking and exports** — baseline comparison plus the SIEM lookup,
   blocklist, and delta CSV outputs, each with a save-as picker
-- **Responsive and cancellable** — scans run on a background thread with a
-  working Cancel button, so the window stays interactive during enrichment
+
+**Recon tab** — deep-fingerprints active domains and scores them for likely
+malicious intent, following the natural investigate-what-you-found workflow:
+
+- **Target sources** — the active domains from the last Detection scan (one
+  click, no re-entry), a DoppelSnare baseline JSON, a domain file, or an
+  ad-hoc comma-separated list
+- **Options** — brand keywords for content matching, an optional screenshots
+  directory, and VirusTotal / AbuseIPDB API keys with free-tier pacing
+- **Risk-scored results table** — each domain rendered as it completes, colour-
+  coded by risk tier (critical/high/medium/low) with its score, a login-form
+  flag, CA-risk, open ports, and email-security assessment; JSON, CSV, and
+  embedded-screenshot HTML reports are written on completion
+
+Both tabs run scans on a background thread with a working **Cancel** button, so
+the window stays interactive throughout. Each tab has an **Output folder**
+setting (defaulting to the install directory) so reports and baselines land in a
+predictable, writable place — and the log always shows the absolute path
+written — even when the GUI is launched from outside the repository.
 
 Built on Tkinter, which ships with Python — the GUI adds **no new
-dependencies** beyond what `doppelsnare.py` already uses, and reports any
-missing optional libraries at startup just like the CLI.
+dependencies** beyond what the two scripts already use, and reports any missing
+optional libraries at startup just like the CLI.
+
+### `doppelsnare_common.py` — Shared helpers
+
+Not run directly. DNS resolution (public-resolver setup, record lookups, the
+OS-resolver fallback, PTR and TXT helpers) and domain parsing (scheme/port/`www.`
+stripping, multi-part TLD handling) live here so both scripts share one
+implementation — a resolver or parsing fix lands in a single place. Depends
+only on the standard library plus optional dnspython.
 
 ## Features
 
@@ -68,48 +96,57 @@ missing optional libraries at startup just like the CLI.
 ## Quick start
 
 ```bash
-pip install -r requirements.txt
+# Install from a checkout (editable, so the bundled keyword lists resolve).
+# Add extras for the recon stage and/or screenshots — see Requirements below.
+pip install -e '.[recon]'
 
 # Prefer a point-and-click workflow? Launch the desktop interface
-python doppelsnare_gui.py
+doppelsnare-gui
 
 # Generate and enrich lookalikes for your domain
-python doppelsnare.py yourbrand.com \
+doppelsnare yourbrand.com \
   --keywords keywords/keywords_financial.txt \
   --allowlist known_good.txt \
   --csv siem_lookup.csv \
   --baseline baseline.json
 
 # Investigate the active domains it found
-python doppelsnare_recon.py --baseline baseline.json \
+doppelsnare-recon --baseline baseline.json \
   --html report.html \
   --screenshots ./evidence
 ```
 
+Installing the package puts three commands on your `PATH` — `doppelsnare`,
+`doppelsnare-recon`, and `doppelsnare-gui`. If you'd rather not install, the
+scripts also run directly (`python doppelsnare.py …`, etc.). Either way, run
+from the repository directory so the bundled keyword libraries are found.
+
 ## Requirements
 
-Core functionality requires:
+Dependencies are declared in `pyproject.toml` and split into extras so you only
+install what you use. Everything degrades gracefully — a missing optional
+library disables its feature rather than blocking a scan.
 
-```
-dnspython
-requests
-python-whois
-cryptography
-```
+| Install | Pulls in | Enables |
+|---------|----------|---------|
+| `pip install -e .` | `dnspython`, `python-whois` | Detection engine + GUI Detection tab |
+| `pip install -e '.[recon]'` | `+ requests`, `cryptography` | Recon (HTTP fingerprinting, cert parsing) |
+| `pip install -e '.[screenshots]'` | `+ playwright` | Screenshot capture (see below) |
+| `pip install -e '.[all]'` | all of the above | Full toolset |
+| `pip install -e '.[dev]'` | `+ pytest` | Test suite |
 
-Install everything with `pip install -r requirements.txt`. All optional
-dependencies degrade gracefully — a missing library disables its associated
-feature rather than blocking the scan.
+`pip install -r requirements.txt` still works and installs the core runtime.
 
 ### Screenshots (optional)
 
-Screenshot capture uses [Playwright](https://playwright.dev/python/) and needs
-**two** install steps — installing the pip package alone is not enough:
+The `screenshots` extra installs the [Playwright](https://playwright.dev/python/)
+Python library, but that alone is **not** enough — you also need the browser
+binary:
 
 ```bash
-pip install playwright          # 1. the Python library
-playwright install chromium     # 2. the Chromium browser binary
-playwright install-deps         # 3. Linux only: system libs for Chromium
+pip install -e '.[screenshots]'   # 1. the Python library (via the extra)
+playwright install chromium       # 2. the Chromium browser binary
+playwright install-deps           # 3. Linux only: system libs for Chromium
 ```
 
 > **Note:** the most common cause of every screenshot reporting `failed` is a
@@ -130,10 +167,14 @@ associated feature rather than blocking the scan.
 python doppelsnare_gui.py
 ```
 
-Enter a target domain, pick a keyword library and any exports you want, then
-click **Run scan**. Active domains stream into the results table as they
-resolve; the log console and CSV/baseline outputs match the CLI exactly. Run it
-from the repository directory so it can auto-discover the bundled keyword lists.
+On the **Detection** tab, enter a target domain, pick a keyword library and any
+exports you want, then click **Run scan**. Active domains stream into the
+results table as they resolve; the log console and CSV/baseline outputs match
+the CLI exactly. Switch to the **Recon** tab and choose *Active domains from
+last scan* to deep-fingerprint everything the scan just surfaced (or point it at
+a baseline, a domain file, or a typed list), then **Run recon** for risk-scored,
+colour-coded findings and JSON/CSV/HTML reports. Run it from the repository
+directory so it can auto-discover the bundled keyword lists.
 
 > Tkinter ships with most Python installs. If it is missing, install the
 > python.org build or `brew install python-tk` (macOS), or
@@ -216,6 +257,22 @@ keywords_government.txt        keywords_education.txt      keywords_energy.txt
 keywords_manufacturing.txt    keywords_telecom.txt        keywords_logistics.txt
 keywords_hospitality.txt      keywords_media.txt          keywords_crypto.txt
 keywords_aerospace.txt        keywords_food.txt           keywords_nonprofit.txt
+```
+
+## Testing
+
+The `tests/` directory holds a `pytest` suite covering the pure logic that
+matters most — a silent generation bug in a lookalike-detection tool is a
+*missed threat*, not a cosmetic glitch. It exercises domain parsing (schemes,
+ports, `www.`, multi-part TLDs), all five generators (determinism, well-formed
+labels, the bitsquat case-flip exclusion, IDN punycode emission), allowlist
+filtering, baseline change-detection (new/changed/removed/persistent, with
+`first_seen` preservation), and both CSV writers. It needs no network access
+and none of the optional runtime dependencies.
+
+```bash
+pip install -r requirements-dev.txt
+pytest
 ```
 
 ## Troubleshooting
