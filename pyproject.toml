@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doppelsnare"
+version = "1.1.0"
+description = "Detect and investigate fraudulent lookalike domains — generation, DNS/WHOIS enrichment, change tracking, and deep reconnaissance with SIEM-ready output."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = [
+    "security", "threat-intelligence", "phishing", "typosquatting",
+    "homograph", "bitsquatting", "domain-monitoring", "brand-protection",
+]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Topic :: Security",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+
+# Core runtime — what the detection engine (doppelsnare.py) uses. Both degrade
+# gracefully if absent, but they are what a normal install wants.
+dependencies = [
+    "dnspython>=2.4.0",
+    "python-whois>=0.9.0",
+]
+
+[project.optional-dependencies]
+# Deep reconnaissance (doppelsnare_recon.py): HTTP fingerprinting + cert parsing.
+recon = [
+    "requests>=2.31.0",
+    "cryptography>=41.0.0",
+]
+# Headless-Chromium screenshots. Also needs `playwright install chromium`.
+screenshots = [
+    "playwright>=1.40.0",
+]
+# Test suite.
+dev = [
+    "pytest>=7.0",
+]
+# Everything except dev, for a full recon-capable install.
+all = [
+    "doppelsnare[recon,screenshots]",
+]
+
+[project.scripts]
+doppelsnare = "doppelsnare:main"
+doppelsnare-recon = "doppelsnare_recon:main"
+doppelsnare-gui = "doppelsnare_gui:main"
+
+[tool.setuptools]
+# Flat single-file modules at the repository root (no package directory).
+py-modules = [
+    "doppelsnare",
+    "doppelsnare_common",
+    "doppelsnare_recon",
+    "doppelsnare_gui",
+]
