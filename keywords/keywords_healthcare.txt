@@ -1,0 +1,89 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_healthcare.txt — Healthcare & Hospitals
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Hospitals, Health Systems, Clinics, Telehealth, Labs
+# Usage      : python doppelsnare.py yourhospital.com --keywords keywords/keywords_healthcare.txt
+#
+# Healthcare phishing exploits patient portal access, medical records,
+# appointment scheduling, and billing — all high-trust, high-urgency
+# interactions that make victims less cautious about domain authenticity.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Patient Portals & Access ─────────────────────────────────────────────────
+patient
+patientportal
+myhealth
+mychart
+healthportal
+memberportal
+records
+medicalrecords
+ehr
+emr
+healthrecords
+
+# ── Appointments & Care ──────────────────────────────────────────────────────
+appointment
+appointments
+schedule
+booking
+telehealth
+telemedicine
+virtualvisit
+virtualcare
+urgentcare
+clinic
+hospital
+provider
+doctor
+physician
+nurse
+specialist
+referral
+
+# ── Billing & Insurance ──────────────────────────────────────────────────────
+billing
+mybill
+paybill
+copay
+deductible
+claims
+eob
+insurance
+preauth
+priorauth
+financialaid
+charity
+
+# ── Lab & Pharmacy ───────────────────────────────────────────────────────────
+lab
+labs
+labresults
+results
+testresults
+pharmacy
+prescription
+rx
+refill
+imaging
+radiology
+pathology
+
+# ── Compliance & Regulatory ──────────────────────────────────────────────────
+hipaa
+phi
+consent
+privacy
+compliance
+accreditation
+jointcommission
+
+# ── Communications ───────────────────────────────────────────────────────────
+messaging
+securemail
+notify
+notification
+discharge
+aftercare
+wellness

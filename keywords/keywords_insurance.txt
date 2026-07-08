@@ -1,0 +1,90 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_insurance.txt — Insurance
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : P&C, Life, Health, Specialty, Reinsurance, InsurTech
+# Usage      : python doppelsnare.py yourinsurer.com --keywords keywords/keywords_insurance.txt
+#
+# Insurance brand impersonation frequently targets claims portals, policy
+# management, premium payment workflows, and agent/broker communications.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Policy & Coverage ────────────────────────────────────────────────────────
+policy
+policies
+mypolicy
+coverage
+underwriting
+underwriter
+quote
+quotes
+getquote
+renew
+renewal
+endorsement
+rider
+certificate
+
+# ── Claims ───────────────────────────────────────────────────────────────────
+claims
+claimstatus
+fileclaim
+myclaim
+adjuster
+settlement
+payout
+liability
+subrogation
+fnol
+
+# ── Premium & Payments ───────────────────────────────────────────────────────
+premium
+premiums
+billing
+paypremium
+autopay
+installment
+refund
+paymentplan
+
+# ── Products ─────────────────────────────────────────────────────────────────
+auto
+home
+homeowners
+life
+health
+dental
+vision
+disability
+workers
+workcomp
+umbrella
+flood
+commercial
+cyber
+errors
+surety
+title
+annuity
+
+# ── Distribution & Service ───────────────────────────────────────────────────
+agent
+agents
+broker
+brokers
+agency
+producer
+advisor
+member
+members
+policyholder
+beneficiary
+
+# ── Compliance & Regulatory ──────────────────────────────────────────────────
+naic
+doi
+surplus
+admitted
+compliance
+filing
+actuarial

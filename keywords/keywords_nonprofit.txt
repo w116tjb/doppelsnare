@@ -1,0 +1,115 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_nonprofit.txt — Nonprofit & NGO
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Charities, Foundations, Advocacy, Relief, Faith-Based, Unions
+# Usage      : python doppelsnare.py yourorg.org --keywords keywords/keywords_nonprofit.txt
+#
+# Nonprofit impersonation exploits donor trust and urgency around disaster
+# relief, fundraising campaigns, and grant administration.  Attackers
+# intercept donations, redirect grant disbursements, and harvest donor PII.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Donations & Fundraising ──────────────────────────────────────────────────
+donate
+donation
+donations
+give
+giving
+gift
+gifts
+fundraise
+fundraiser
+fundraising
+campaign
+campaigns
+pledge
+recurring
+monthly
+annual
+endowment
+planned
+legacy
+
+# ── Grants & Programs ───────────────────────────────────────────────────────
+grant
+grants
+grantportal
+application
+apply
+eligibility
+award
+funding
+program
+programs
+initiative
+project
+impact
+outcomes
+reporting
+
+# ── Volunteers & Members ────────────────────────────────────────────────────
+volunteer
+volunteers
+signup
+register
+member
+members
+membership
+community
+chapter
+chapters
+ambassador
+advocate
+action
+petition
+
+# ── Events & Outreach ───────────────────────────────────────────────────────
+event
+events
+gala
+auction
+benefit
+walk
+run
+marathon
+conference
+summit
+webinar
+registration
+tickets
+rsvp
+sponsor
+sponsorship
+
+# ── Finance & Administration ─────────────────────────────────────────────────
+finance
+accounting
+invoice
+payment
+wire
+transfer
+disbursement
+reimbursement
+expense
+budget
+audit
+990
+transparency
+annual
+annualreport
+
+# ── Communications ───────────────────────────────────────────────────────────
+news
+update
+updates
+newsletter
+subscribe
+unsubscribe
+press
+media
+blog
+stories
+testimony
+impact
+report

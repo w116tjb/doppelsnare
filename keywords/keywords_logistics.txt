@@ -1,0 +1,102 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_logistics.txt — Transportation & Logistics
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Shipping, Freight, 3PL, Airlines, Rail, Trucking, Last-Mile
+# Usage      : python doppelsnare.py yourlogistics.com --keywords keywords/keywords_logistics.txt
+#
+# Logistics phishing exploits package tracking, delivery notifications,
+# customs clearance, and freight invoice payments.  Attackers often time
+# campaigns around peak shipping seasons.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Tracking & Delivery ─────────────────────────────────────────────────────
+tracking
+track
+trackpackage
+trackshipment
+tracknumber
+delivery
+deliverystatus
+delivered
+outfordelivery
+scheduled
+eta
+notification
+alert
+proof
+pod
+
+# ── Shipping & Freight ──────────────────────────────────────────────────────
+shipping
+ship
+shipment
+freight
+cargo
+parcel
+package
+express
+overnight
+ground
+ltl
+ftl
+intermodal
+container
+
+# ── Booking & Rates ─────────────────────────────────────────────────────────
+booking
+book
+quote
+ratequote
+estimate
+schedule
+pickup
+dropoff
+route
+routing
+dispatch
+manifest
+bol
+waybill
+
+# ── Customs & International ──────────────────────────────────────────────────
+customs
+clearance
+duties
+import
+export
+tariff
+broker
+forwarding
+declaration
+hts
+commercial
+
+# ── Fleet & Operations ───────────────────────────────────────────────────────
+fleet
+driver
+drivers
+dispatch
+gps
+telematics
+maintenance
+fuel
+dot
+safety
+compliance
+inspection
+
+# ── Billing & Claims ────────────────────────────────────────────────────────
+billing
+invoice
+payment
+claims
+damage
+loss
+insurance
+liability
+accessorial
+surcharge
+fuel
+demurrage
+detention

@@ -26,27 +26,28 @@ import os
 import re
 import socket
 import sys
-import threading
 import concurrent.futures
 import urllib.request
 import urllib.error
 from datetime import datetime
 
+# Shared DNS resolution + domain parsing live in doppelsnare_common so a fix
+# lands in one place for both this tool and doppelsnare_recon.py.  Aliased to
+# the private names the rest of this module already uses.
+from doppelsnare_common import (
+    HAS_DNS,
+    parse_domain,
+    resolve as _resolve,
+    socket_resolve as _socket_resolve,
+)
+
 # Internal aliases kept for the RDAP/WHOIS helpers below.
 _re = re
 _json = json
-_threading = threading
 _urllib_request = urllib.request
 _urllib_error = urllib.error
 
 # ── Optional dependencies ──────────────────────────────────────────────────
-
-try:
-    import dns.resolver
-    import dns.exception
-    HAS_DNS = True
-except ImportError:
-    HAS_DNS = False
 
 try:
     import whois
@@ -151,69 +152,52 @@ def load_allowlist(filepath: str) -> set[str]:
 
     The file should contain one domain per line.  Entries that begin with
     '.' are treated as suffix matches (e.g. '.example.com' matches
-    'www.example.com' and 'portal.example.com' in addition to 'example.com').
+    'www.example.com' and 'portal.example.com' in addition to 'example.com');
+    entries without a leading '.' match exactly.  The leading '.' is preserved
+    in the returned set so apply_allowlist() can tell the two apart.
     Lines starting with '#' are comments.
     """
-    exact: set[str] = set()
+    entries: set[str] = set()
     if not os.path.exists(filepath):
-        return exact
+        return entries
     with open(filepath, "r", encoding="utf-8") as fh:
         for line in fh:
             entry = line.strip().lower()
-            if entry and not entry.startswith("#"):
-                exact.add(entry.lstrip("."))   # normalise leading dot
-    return exact
+            if not entry or entry.startswith("#"):
+                continue
+            base = entry.lstrip(".")            # collapse any leading dots
+            if not base:
+                continue                        # skip a lone '.' / empty entry
+            entries.add("." + base if entry.startswith(".") else base)
+    return entries
 
 
 def apply_allowlist(domains: set[str] | list[str], allowlist: set[str]) -> set[str]:
-    """Remove any domain that appears in the allowlist (exact match)."""
+    """
+    Remove any domain covered by the allowlist.
+
+    Exact entries ('example.com') match only that domain.  Suffix entries,
+    written with a leading dot ('.example.com'), match the domain itself and
+    every subdomain of it ('www.example.com', 'portal.example.com', …).
+    """
     if not allowlist:
         return set(domains)
-    return {d for d in domains if d not in allowlist}
+
+    exact    = {a for a in allowlist if not a.startswith(".")}
+    suffixes = {a for a in allowlist if a.startswith(".")}   # e.g. '.example.com'
+
+    def is_allowed(d: str) -> bool:
+        if d in exact:
+            return True
+        # '.example.com' covers 'example.com' (== base) and any subdomain
+        # ('www.example.com'.endswith('.example.com')).
+        return any(d == suf[1:] or d.endswith(suf) for suf in suffixes)
+
+    return {d for d in domains if not is_allowed(d)}
 
 
-# Common multi-part (public-suffix) TLDs. Not exhaustive, but covers the
-# cases that would otherwise be mis-split (e.g. example.co.uk → name=example.co).
-_MULTI_TLDS = frozenset({
-    "co.uk", "org.uk", "me.uk", "ltd.uk", "plc.uk", "net.uk", "sch.uk", "ac.uk", "gov.uk",
-    "com.au", "net.au", "org.au", "edu.au", "gov.au", "id.au",
-    "co.nz", "net.nz", "org.nz", "govt.nz",
-    "com.br", "net.br", "org.br", "gov.br",
-    "co.jp", "or.jp", "ne.jp", "ac.jp", "go.jp",
-    "co.in", "net.in", "org.in", "gov.in", "ac.in",
-    "com.mx", "com.sg", "com.hk", "com.tw", "com.cn", "com.tr",
-    "co.za", "org.za", "gov.za",
-    "com.ua", "co.il", "com.ar", "com.co",
-})
-
-
-def parse_domain(raw: str) -> tuple[str, str, str]:
-    """
-    Return (name, tld, full_domain) from a raw domain/URL string.
-
-    Handles scheme prefixes, paths, ports, a leading 'www.', and common
-    multi-part TLDs (e.g. example.co.uk → name='example', tld='co.uk').
-    """
-    raw = raw.lower().strip()
-    for scheme in ("https://", "http://"):
-        if raw.startswith(scheme):
-            raw = raw[len(scheme):]
-    raw = raw.split("/")[0].split("?")[0].split(":")[0]   # strip path, query, port
-    # Drop a leading www. so the registrable label is generated, not 'www.example'
-    if raw.startswith("www."):
-        raw = raw[4:]
-    parts = raw.split(".")
-
-    if len(parts) < 2:
-        return raw, "com", raw + ".com"
-
-    # Check for a two-label public suffix first (co.uk, com.au, …)
-    if len(parts) >= 3:
-        candidate_tld = ".".join(parts[-2:])
-        if candidate_tld in _MULTI_TLDS:
-            return ".".join(parts[:-2]), candidate_tld, raw
-
-    return ".".join(parts[:-1]), parts[-1], raw
+# parse_domain and the multi-part-TLD table are imported from
+# doppelsnare_common (shared with doppelsnare_recon.py).
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -396,59 +380,8 @@ def generate_phishing(name: str, tld: str, keywords: list[str]) -> set[str]:
 #  DNS & WHOIS ENRICHMENT
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Public recursive resolvers — avoids system-stub-resolver quirks and
-# rate-limiting issues when firing hundreds of concurrent queries.
-_PUBLIC_NS = ["8.8.8.8", "1.1.1.1", "8.8.4.4", "9.9.9.9"]
-
-
-_thread_local = _threading.local()
-
-def _make_resolver(timeout: int = 5) -> "dns.resolver.Resolver":
-    """
-    Return a dnspython Resolver pointed at well-known public nameservers.
-    Cached per-thread so we don't rebuild the resolver object on every query
-    (each domain triggers 4 record lookups; without caching that's 4 resolver
-    constructions per domain across thousands of domains).
-    """
-    cached = getattr(_thread_local, "resolver", None)
-    if cached is not None:
-        return cached
-    r = dns.resolver.Resolver()
-    r.nameservers = _PUBLIC_NS
-    r.timeout    = timeout
-    r.lifetime   = timeout * 3   # allow up to 3 retries across nameservers
-    _thread_local.resolver = r
-    return r
-
-
-def _resolve(domain: str, rtype: str, timeout: int = 5) -> list[str]:
-    """
-    Resolve a DNS record type using public recursive resolvers.
-    Returns an empty list on NXDOMAIN, NoAnswer, or network failure.
-    """
-    if not HAS_DNS:
-        return []
-    try:
-        r = _make_resolver(timeout)
-        # raise_on_no_answer=False prevents NoAnswer exceptions for empty
-        # record sets (e.g. domain exists but has no MX record).
-        answers = r.resolve(domain, rtype, raise_on_no_answer=False)
-        return [str(a) for a in answers]
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers):
-        return []
-    except dns.exception.Timeout:
-        return []
-    except Exception:
-        return []
-
-
-def _socket_resolve(domain: str) -> list[str]:
-    """Fallback A-record lookup via the OS resolver (no dnspython required)."""
-    try:
-        results = socket.getaddrinfo(domain, None)
-        return list({r[4][0] for r in results})
-    except socket.gaierror:
-        return []
+# DNS resolution (_resolve, _socket_resolve) is imported from
+# doppelsnare_common at the top of this module.
 
 
 # ── RDAP + WHOIS registration lookups ────────────────────────────────────────
@@ -563,8 +496,14 @@ def _rdap_lookup(domain: str, timeout: int = 10) -> dict:
             if any(result.values()):
                 return result
 
-        except (_urllib_error.URLError, _urllib_error.HTTPError, Exception):
-            continue   # try next URL
+        except (_urllib_error.URLError, TimeoutError, ValueError,
+                KeyError, IndexError, TypeError, AttributeError):
+            # Expected failure modes when fetching/parsing an RDAP endpoint:
+            # network/HTTP errors (HTTPError subclasses URLError), timeouts,
+            # malformed JSON (JSONDecodeError subclasses ValueError), or an
+            # unexpected response shape. Move on to the next URL. Genuine code
+            # bugs (e.g. NameError) are deliberately NOT caught here.
+            continue
 
     return result
 

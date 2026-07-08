@@ -1,0 +1,99 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keywords_manufacturing.txt — Manufacturing & Industrial
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Industry   : Discrete, Process, Automotive, Aerospace, CPG, Industrial
+# Usage      : python doppelsnare.py yourcompany.com --keywords keywords/keywords_manufacturing.txt
+#
+# Manufacturing BEC targets procurement, supplier payments, and invoice
+# fraud.  Attackers impersonate vendors, purchasing portals, and logistics
+# partners to redirect large purchase order payments.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Procurement & Supply Chain ───────────────────────────────────────────────
+procurement
+purchasing
+supplier
+vendor
+vendorportal
+supply
+supplychain
+sourcing
+rfp
+rfq
+bid
+bidding
+po
+purchaseorder
+
+# ── Orders & Invoicing ──────────────────────────────────────────────────────
+order
+orders
+invoice
+invoicing
+billing
+payment
+remittance
+edi
+packing
+shipment
+receiving
+bol
+freight
+
+# ── Inventory & Warehouse ───────────────────────────────────────────────────
+inventory
+warehouse
+stock
+materials
+mrp
+erp
+bom
+parts
+spares
+catalog
+
+# ── Quality & Compliance ────────────────────────────────────────────────────
+quality
+qa
+qc
+inspection
+recall
+capa
+nonconformance
+iso
+audit
+compliance
+regulatory
+safety
+msds
+sds
+
+# ── Operations & Engineering ─────────────────────────────────────────────────
+production
+operations
+plant
+factory
+maintenance
+engineering
+design
+cad
+plm
+tooling
+automation
+plc
+scada
+iot
+ot
+
+# ── Distributor & Customer ───────────────────────────────────────────────────
+distributor
+dealer
+oem
+customer
+warranty
+returns
+rma
+technical
+service
+field

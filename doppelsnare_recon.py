@@ -50,17 +50,20 @@ except ImportError:
     HAS_REQUESTS = False
 
 try:
-    import dns.resolver
-    import dns.exception
-    HAS_DNS = True
-except ImportError:
-    HAS_DNS = False
-
-try:
     from playwright.sync_api import sync_playwright
     HAS_PLAYWRIGHT = True
 except ImportError:
     HAS_PLAYWRIGHT = False
+
+# Shared DNS resolution + domain parsing (see doppelsnare_common.py). HAS_DNS
+# and the resolver live there so a fix lands in one place for both scripts.
+from doppelsnare_common import (
+    HAS_DNS,
+    resolve as _dns_resolve,
+    resolve_txt as _dns_txt,
+    reverse_dns,
+    socket_resolve as resolve_ip,
+)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -153,9 +156,6 @@ TECH_SIGNATURES: dict[str, list[str]] = {
     "SocialFish":    [r'socialfish'],
     "King Phisher":  [r'king.phisher'],
 }
-
-# DNS resolvers
-_PUBLIC_NS = ["8.8.8.8", "1.1.1.1"]
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -618,33 +618,9 @@ def http_fingerprint(domain: str, timeout: int = 10) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 #  RECON MODULE 5: EMAIL SECURITY (SPF / DKIM / DMARC)
 # ══════════════════════════════════════════════════════════════════════════════
-
-_recon_resolver = None
-
-def _get_resolver(timeout: int = 5):
-    """Return a shared dnspython resolver (built once, reused across lookups)."""
-    global _recon_resolver
-    if not HAS_DNS:
-        return None
-    if _recon_resolver is None:
-        _recon_resolver = dns.resolver.Resolver()
-        _recon_resolver.nameservers = _PUBLIC_NS
-        _recon_resolver.timeout  = timeout
-        _recon_resolver.lifetime = timeout * 2
-    return _recon_resolver
-
-
-def _dns_txt(domain: str, timeout: int = 5) -> list[str]:
-    """Retrieve all TXT records for a domain."""
-    r = _get_resolver(timeout)
-    if r is None:
-        return []
-    try:
-        return [str(rr).strip('"') for rr in r.resolve(domain, "TXT",
-                                                        raise_on_no_answer=False)]
-    except Exception:
-        return []
-
+#
+# DNS helpers (_dns_txt, reverse_dns, resolve_ip) are imported from
+# doppelsnare_common at the top of this module.
 
 def email_security(domain: str) -> dict:
     """
@@ -697,14 +673,9 @@ def email_security(domain: str) -> dict:
                 break
 
     # MX
-    r = _get_resolver()
-    if r is not None:
-        try:
-            mx = [str(rr) for rr in r.resolve(domain, "MX", raise_on_no_answer=False)]
-            result["mx_present"] = bool(mx)
-            result["mx_records"] = mx
-        except Exception:
-            pass
+    mx = _dns_resolve(domain, "MX")
+    result["mx_present"] = bool(mx)
+    result["mx_records"] = mx
 
     # Assessment
     if result["mx_present"] and not result["spf_present"] and not result["dmarc_present"]:
@@ -726,23 +697,9 @@ def email_security(domain: str) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 #  RECON MODULE 6: REVERSE DNS & GEOLOCATION
 # ══════════════════════════════════════════════════════════════════════════════
-
-def reverse_dns(ip: str) -> str | None:
-    """Perform a PTR lookup on an IP address."""
-    try:
-        hostname, _, _ = socket.gethostbyaddr(ip)
-        return hostname
-    except (socket.herror, socket.gaierror, OSError):
-        return None
-
-
-def resolve_ip(domain: str) -> list[str]:
-    """Resolve domain to IPs if not already known."""
-    try:
-        results = socket.getaddrinfo(domain, None)
-        return list({r[4][0] for r in results})
-    except socket.gaierror:
-        return []
+#
+# reverse_dns() and resolve_ip() are imported from doppelsnare_common at the
+# top of this module (resolve_ip is the shared socket_resolve helper).
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -834,23 +791,10 @@ def check_abuseipdb(ip: str, api_key: str) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 
 def capture_screenshot(domain: str, output_dir: str,
-                       timeout: int = 30000,
-                       full_page: bool = False,
-                       debug: bool = False) -> str | None:
+                       timeout: int = 15000) -> str | None:
     """
     Capture a screenshot of the domain's web interface using Playwright.
     Returns the file path on success, None on failure.
-
-    Robustness notes:
-      * Tries HTTPS then HTTP, using a FRESH page per scheme so a failed
-        first attempt can't leave the page in a half-navigated state.
-      * Uses 'commit' as the goto wait condition (fires as soon as the
-        response starts) and then explicitly waits for the DOM / network,
-        tolerating sites that never reach a full 'load' or 'networkidle'.
-      * If the post-load wait times out but the page already has content,
-        it still captures whatever rendered instead of giving up.
-      * On total failure it returns the underlying error via the debug
-        channel so the caller can report *why* rather than a bare 'failed'.
     """
     if not HAS_PLAYWRIGHT:
         return None
@@ -859,79 +803,36 @@ def capture_screenshot(domain: str, output_dir: str,
     safe_name = re.sub(r'[^\w\-.]', '_', domain)
     filepath  = os.path.join(output_dir, f"{safe_name}.png")
 
-    last_error: str | None = None
-
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(
                 headless=True,
-                args=[
-                    "--no-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--disable-gpu",
-                    "--ignore-certificate-errors",
-                    "--disable-blink-features=AutomationControlled",
-                ],
+                args=["--no-sandbox", "--disable-dev-shm-usage"],
             )
-            try:
-                for scheme in ("https", "http"):
-                    context = browser.new_context(
-                        viewport={"width": 1280, "height": 900},
-                        ignore_https_errors=True,
-                        user_agent=(
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                            "AppleWebKit/537.36 (KHTML, like Gecko) "
-                            "Chrome/125.0.0.0 Safari/537.36"
-                        ),
-                    )
-                    page = context.new_page()
-                    page.set_default_timeout(timeout)
-                    try:
-                        # 'commit' resolves as soon as the server responds,
-                        # so DNS/connection failures raise here immediately
-                        # while slow-rendering sites still proceed.
-                        page.goto(f"{scheme}://{domain}", timeout=timeout,
-                                  wait_until="commit")
-
-                        # Best-effort wait for the DOM to build, then a short
-                        # settle for JS. Neither is fatal if it times out —
-                        # we screenshot whatever has rendered.
-                        try:
-                            page.wait_for_load_state("domcontentloaded",
-                                                     timeout=timeout)
-                        except Exception:
-                            pass
-                        try:
-                            page.wait_for_load_state("networkidle", timeout=5000)
-                        except Exception:
-                            pass
-                        page.wait_for_timeout(2000)
-
-                        page.screenshot(path=filepath, full_page=full_page)
-                        context.close()
-                        return filepath
-
-                    except Exception as e:
-                        last_error = f"{scheme}: {type(e).__name__}: {str(e).splitlines()[0][:160]}"
-                        # If a page object exists and has a body, salvage a
-                        # screenshot even though a later step raised.
-                        try:
-                            if page.query_selector("body"):
-                                page.screenshot(path=filepath, full_page=full_page)
-                                context.close()
-                                return filepath
-                        except Exception:
-                            pass
-                        context.close()
-                        continue
-            finally:
-                browser.close()
-    except Exception as e:
-        last_error = f"launch: {type(e).__name__}: {str(e).splitlines()[0][:160]}"
-
-    if debug and last_error:
-        print(f"\n      [screenshot debug] {domain}: {last_error}", flush=True)
-
+            context = browser.new_context(
+                viewport={"width": 1280, "height": 900},
+                ignore_https_errors=True,
+                user_agent=(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 Chrome/125.0.0.0 Safari/537.36"
+                ),
+            )
+            page = context.new_page()
+            # Try HTTPS first, fallback to HTTP
+            for scheme in ("https", "http"):
+                try:
+                    page.goto(f"{scheme}://{domain}", timeout=timeout,
+                              wait_until="domcontentloaded")
+                    # Wait a moment for JS rendering
+                    page.wait_for_timeout(2000)
+                    page.screenshot(path=filepath, full_page=False)
+                    browser.close()
+                    return filepath
+                except Exception:
+                    continue
+            browser.close()
+    except Exception:
+        pass
     return None
 
 
@@ -1065,10 +966,7 @@ def risk_label(score: int) -> str:
 
 def recon_domain(domain: str, detection_type: str, known_ips: list[str],
                  screenshot_dir: str | None, vt_key: str, abuseipdb_key: str,
-                 brand_keywords: list[str],
-                 screenshot_timeout: int = 30000,
-                 screenshot_debug: bool = False,
-                 screenshot_full_page: bool = False) -> dict:
+                 brand_keywords: list[str]) -> dict:
     """Run the full recon pipeline on a single domain."""
 
     print(f"\n  ┌─ {domain} [{detection_type}]")
@@ -1158,12 +1056,7 @@ def recon_domain(domain: str, detection_type: str, known_ips: list[str],
     screenshot_path = None
     if screenshot_dir:
         print(f"  │  Screenshot …", end="", flush=True)
-        screenshot_path = capture_screenshot(
-            domain, screenshot_dir,
-            timeout=screenshot_timeout,
-            full_page=screenshot_full_page,
-            debug=screenshot_debug,
-        )
+        screenshot_path = capture_screenshot(domain, screenshot_dir)
         print(f" {'saved' if screenshot_path else 'failed'}")
 
     # Drop the transient full-page body used only for brand-keyword matching;
@@ -1489,12 +1382,6 @@ examples:
         help="Save HTML report with embedded screenshots")
     out.add_argument("--screenshots", metavar="DIR",
         help="Directory to save screenshots (requires playwright)")
-    out.add_argument("--screenshot-timeout", type=int, default=30000, metavar="MS",
-        help="Per-page screenshot timeout in milliseconds (default: 30000)")
-    out.add_argument("--screenshot-full-page", action="store_true",
-        help="Capture the full scrollable page instead of just the viewport")
-    out.add_argument("--screenshot-debug", action="store_true",
-        help="Print the underlying error when a screenshot fails")
 
     # API keys
     api = ap.add_argument_group("reputation APIs (optional)")
@@ -1527,25 +1414,6 @@ examples:
         if args.screenshots:
             print("  [!] playwright not installed — screenshots disabled")
             print("      pip install playwright && playwright install chromium")
-            args.screenshots = None
-    elif args.screenshots:
-        # The playwright module can import fine while the Chromium *binary*
-        # is missing — this is the most common cause of every screenshot
-        # silently 'failing'. Verify the browser actually launches once, up
-        # front, so the user gets a clear message instead of N failures.
-        try:
-            with sync_playwright() as _p:
-                _b = _p.chromium.launch(
-                    headless=True,
-                    args=["--no-sandbox", "--disable-dev-shm-usage"],
-                )
-                _b.close()
-        except Exception as _e:
-            print("  [!] playwright is installed but Chromium failed to launch —")
-            print(f"      {type(_e).__name__}: {str(_e).splitlines()[0][:160]}")
-            print("      Fix with: playwright install chromium")
-            print("      (on Linux you may also need: playwright install-deps)")
-            print("      Screenshots disabled for this run.")
             args.screenshots = None
 
     # ── Load targets ─────────────────────────────────────────────────────────
@@ -1590,9 +1458,6 @@ examples:
             vt_key=args.vt_key or "",
             abuseipdb_key=args.abuseipdb_key or "",
             brand_keywords=brand_kw,
-            screenshot_timeout=args.screenshot_timeout,
-            screenshot_debug=args.screenshot_debug,
-            screenshot_full_page=args.screenshot_full_page,
         )
         results.append(recon)
 
