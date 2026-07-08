@@ -8,6 +8,11 @@
 # partners, vendors, or subsidiaries that would otherwise trigger as
 # lookalikes of your primary brand domain.
 #
+# Matching:
+#   example.com    exact match  — excludes only example.com
+#   .example.com   suffix match — excludes example.com AND every subdomain
+#                  of it (www.example.com, portal.example.com, …)
+#
 # Usage:
 #   python doppelsnare.py example.com --allowlist known_good.txt
 #

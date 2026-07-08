@@ -1,10 +1,17 @@
-# lookalike_domains.py — Python dependencies
+# DoppelSnare — core runtime dependencies
 #
-# Install with:
-#   pip install -r requirements.txt
+# pyproject.toml is the canonical dependency source. This file mirrors the
+# core install for `pip install -r requirements.txt`; for recon / screenshots
+# / dev tooling use the extras instead:
 #
-# Both packages are optional — the script degrades gracefully if absent:
-#   dnspython   → falls back to socket.getaddrinfo() for A records only
+#   pip install -e .                 # core (this file's equivalent)
+#   pip install -e '.[recon]'        # + HTTP fingerprinting & cert parsing
+#   pip install -e '.[screenshots]'  # + Playwright (then: playwright install chromium)
+#   pip install -e '.[all]'          # everything except dev
+#   pip install -e '.[dev]'          # + pytest
+#
+# Both packages below are optional — the tool degrades gracefully if absent:
+#   dnspython    → falls back to socket.getaddrinfo() for A records only
 #   python-whois → WHOIS data (registrar, creation date) will be unavailable
 
 dnspython>=2.4.0
