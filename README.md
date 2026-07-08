@@ -32,6 +32,31 @@ Deep-fingerprints the live domains DoppelSnare surfaces:
 - **Screenshots** via headless Chromium for visual evidence — with configurable timeout, full-page capture, partial-render salvage, and a debug mode that surfaces the exact failure reason
 - **Aggregate risk scoring** (0–100) with an analyst-ready HTML report
 
+### `doppelsnare_gui.py` — Desktop interface
+
+A native graphical front-end over the generation and enrichment engine, for
+analysts who prefer a point-and-click workflow to the command line. It drives
+the exact same `doppelsnare.py` pipeline — no separate logic to keep in sync —
+and streams results into a live table as domains resolve:
+
+- **Scan configuration panel** — target domain, keyword list (a dropdown
+  auto-populated with all 21 industry libraries plus a file browser), allowlist,
+  the five detection types as checkboxes, active-only / generate-only toggles,
+  and a DNS-thread selector
+- **Live results table** — type, domain, IP(s), an MX indicator (rows with mail
+  capability are highlighted, since that is a key BEC/phishing signal),
+  registrar, and creation date, populated as each domain is enriched; a progress
+  bar, active-domain counter, and a log console mirror the CLI output.
+  Double-click a row to copy the domain
+- **Change tracking and exports** — baseline comparison plus the SIEM lookup,
+  blocklist, and delta CSV outputs, each with a save-as picker
+- **Responsive and cancellable** — scans run on a background thread with a
+  working Cancel button, so the window stays interactive during enrichment
+
+Built on Tkinter, which ships with Python — the GUI adds **no new
+dependencies** beyond what `doppelsnare.py` already uses, and reports any
+missing optional libraries at startup just like the CLI.
+
 ## Features
 
 - **21 industry-specific keyword libraries** (financial, healthcare, real estate, crypto, government, and more) to tune domain generation to your sector
@@ -44,6 +69,9 @@ Deep-fingerprints the live domains DoppelSnare surfaces:
 
 ```bash
 pip install -r requirements.txt
+
+# Prefer a point-and-click workflow? Launch the desktop interface
+python doppelsnare_gui.py
 
 # Generate and enrich lookalikes for your domain
 python doppelsnare.py yourbrand.com \
@@ -94,6 +122,22 @@ All optional dependencies degrade gracefully — a missing library disables its
 associated feature rather than blocking the scan.
 
 ## Usage
+
+### Desktop interface
+
+```bash
+# Launch the GUI — no arguments needed
+python doppelsnare_gui.py
+```
+
+Enter a target domain, pick a keyword library and any exports you want, then
+click **Run scan**. Active domains stream into the results table as they
+resolve; the log console and CSV/baseline outputs match the CLI exactly. Run it
+from the repository directory so it can auto-discover the bundled keyword lists.
+
+> Tkinter ships with most Python installs. If it is missing, install the
+> python.org build or `brew install python-tk` (macOS), or
+> `sudo apt install python3-tk` (Debian/Ubuntu).
 
 ### Domain generation and enrichment
 
