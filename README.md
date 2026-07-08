@@ -29,7 +29,7 @@ Deep-fingerprints the live domains DoppelSnare surfaces:
 - **HTTP fingerprinting** — technology detection including known phishing toolkits (GoPhish, Evilginx, etc.), login-form and credential-harvest detection
 - **Email security posture** — SPF/DKIM/DMARC analysis to gauge spoofing/BEC capability
 - **Reputation checks** — VirusTotal and AbuseIPDB integration
-- **Screenshots** via headless Chromium for visual evidence
+- **Screenshots** via headless Chromium for visual evidence — with configurable timeout, full-page capture, partial-render salvage, and a debug mode that surfaces the exact failure reason
 - **Aggregate risk scoring** (0–100) with an analyst-ready HTML report
 
 ## Features
@@ -69,12 +69,26 @@ python-whois
 cryptography
 ```
 
-Screenshots (optional) additionally require:
+Install everything with `pip install -r requirements.txt`. All optional
+dependencies degrade gracefully — a missing library disables its associated
+feature rather than blocking the scan.
 
+### Screenshots (optional)
+
+Screenshot capture uses [Playwright](https://playwright.dev/python/) and needs
+**two** install steps — installing the pip package alone is not enough:
+
+```bash
+pip install playwright          # 1. the Python library
+playwright install chromium     # 2. the Chromium browser binary
+playwright install-deps         # 3. Linux only: system libs for Chromium
 ```
-playwright
-# followed by: playwright install chromium
-```
+
+> **Note:** the most common cause of every screenshot reporting `failed` is a
+> missing Chromium binary. `pip install playwright` makes the module importable,
+> but without `playwright install chromium` the browser can't launch. DoppelSnare
+> Recon runs a pre-flight browser check and will tell you if this is the problem.
+> You can also run any scan with `--screenshot-debug` to see the exact error.
 
 All optional dependencies degrade gracefully — a missing library disables its
 associated feature rather than blocking the scan.
@@ -120,6 +134,13 @@ python doppelsnare_recon.py --baseline baseline.json \
   --vt-key YOUR_VT_KEY \
   --abuseipdb-key YOUR_ABUSE_KEY
 
+# Tune or troubleshoot screenshot capture
+python doppelsnare_recon.py --domains suspect-lookalike.com \
+  --screenshots ./evidence \
+  --screenshot-timeout 45000 \    # raise timeout for slow-loading sites (ms)
+  --screenshot-full-page \        # capture the whole scrollable page
+  --screenshot-debug              # print the real error if a capture fails
+
 # Recon on an ad-hoc list of domains
 python doppelsnare_recon.py --domains evil-lookalike.com,phish-lookalike.com
 ```
@@ -152,6 +173,25 @@ keywords_manufacturing.txt    keywords_telecom.txt        keywords_logistics.txt
 keywords_hospitality.txt      keywords_media.txt          keywords_crypto.txt
 keywords_aerospace.txt        keywords_food.txt           keywords_nonprofit.txt
 ```
+
+## Troubleshooting
+
+**Screenshots all report `failed`**
+Almost always a missing Chromium binary. `pip install playwright` installs only
+the Python module; you also need `playwright install chromium` (and, on Linux,
+`playwright install-deps`). Run with `--screenshot-debug` to see the exact
+underlying error, or rely on the pre-flight browser check that prints a fix hint
+at startup. For slow-loading sites, raise `--screenshot-timeout` (default 30000 ms).
+
+**Registrar / creation date come back empty**
+Registration data is fetched via RDAP (HTTPS) with a WHOIS (port 43) fallback.
+If your network blocks outbound port 43 and the RDAP endpoints, these fields will
+be blank while DNS data still populates. This is a network restriction, not a bug.
+
+**VirusTotal reports rate-limit errors**
+The free VT tier allows 4 requests/minute. DoppelSnare Recon paces calls
+automatically (`--vt-delay`, default 15.5s between domains). For paid keys set
+`--vt-delay 0` to remove the wait.
 
 ## Typical workflow
 
